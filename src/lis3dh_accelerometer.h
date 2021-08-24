@@ -26,6 +26,7 @@ typedef enum __lis3dh_operating_mode_t
     LIS3DH_OPMODE_LOW_POWER = 0,
     LIS3DH_OPMODE_NORMAL,
     LIS3DH_OPMODE_HIGH_RES,
+    LIS3DH_OPMODE_INVALID,
 } lis3dh_operating_mode_t;
 
 

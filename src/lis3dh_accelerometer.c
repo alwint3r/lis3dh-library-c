@@ -1,6 +1,29 @@
 #include "lis3dh_accelerometer.h"
 #include "lis3dh_fullscale.h"
+#include "lis3dh_odr.h"
 #include <string.h>
+
+static lis3dh_operating_mode_t lis3dh_convert_register_values_to_operating_mode(uint8_t ctrl_reg1, uint8_t ctrl_reg4)
+{
+    if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == LIS3DH_LOW_POWER_MASK && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == 0)
+    {
+        return LIS3DH_OPMODE_LOW_POWER;
+    }
+    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == 0 && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == 0)
+    {
+        return LIS3DH_OPMODE_NORMAL;
+    }
+    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == 0 && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == LIS3DH_HIGH_RES_MASK)
+    {
+        return LIS3DH_OPMODE_HIGH_RES;
+    }
+    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == LIS3DH_LOW_POWER_MASK && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == LIS3DH_HIGH_RES_MASK)
+    {
+        return LIS3DH_OPMODE_INVALID;
+    }
+
+    return LIS3DH_OPMODE_INVALID;
+}
 
 lis3dh_error_t lis3dh_enable_axes(lis3dh_t *sensor, uint8_t axes)
 {
@@ -58,6 +81,8 @@ lis3dh_error_t lis3dh_set_operating_mode(lis3dh_t *sensor, lis3dh_operating_mode
         return error;
     }
 
+    lis3dh_operating_mode_t current_mode = lis3dh_convert_register_values_to_operating_mode(ctrl_reg1, ctrl_reg4);
+
     uint8_t new_ctrl_reg1 = ctrl_reg1;
     uint8_t new_ctrl_reg4 = ctrl_reg4;
 
@@ -81,6 +106,22 @@ lis3dh_error_t lis3dh_set_operating_mode(lis3dh_t *sensor, lis3dh_operating_mode
 
         sensor->axes_resolution = 8;
         break;
+    }
+
+    if (current_mode == LIS3DH_HIGH_RES_MASK)
+    {
+        error = lis3dh_power_down(sensor);
+        if (error == LIS3DH_ERROR)
+        {
+            return error;
+        }
+
+        uint8_t ref = 0;
+        error = lis3dh_read_register(sensor, LIS3DH_REFERENCE_ADDR, &ref);
+        if (error == LIS3DH_ERROR)
+        {
+            return error;
+        }
     }
 
     error = lis3dh_write_register(sensor, LIS3DH_CTRL_REG1_ADDR, new_ctrl_reg1);
@@ -114,25 +155,26 @@ lis3dh_error_t lis3dh_get_operating_mode(lis3dh_t *sensor, lis3dh_operating_mode
         return error;
     }
 
-    if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == LIS3DH_LOW_POWER_MASK && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == 0)
+    lis3dh_operating_mode_t mode = lis3dh_convert_register_values_to_operating_mode(ctrl_reg1, ctrl_reg4);
+
+    if (mode == LIS3DH_OPMODE_LOW_POWER)
     {
         sensor->axes_resolution = 8;
-        *opmode = LIS3DH_OPMODE_LOW_POWER;
     }
-    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == 0 && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == 0)
+    else if (mode == LIS3DH_OPMODE_NORMAL)
     {
         sensor->axes_resolution = 10;
-        *opmode = LIS3DH_OPMODE_NORMAL;
     }
-    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == 0 && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == LIS3DH_HIGH_RES_MASK)
+    else if (mode == LIS3DH_OPMODE_HIGH_RES)
     {
         sensor->axes_resolution = 12;
-        *opmode = LIS3DH_OPMODE_HIGH_RES;
     }
-    else if ((ctrl_reg1 & LIS3DH_LOW_POWER_MASK) == LIS3DH_LOW_POWER_MASK && (ctrl_reg4 & LIS3DH_HIGH_RES_MASK) == LIS3DH_HIGH_RES_MASK)
+    else if (mode == LIS3DH_OPMODE_INVALID)
     {
         return LIS3DH_ERROR;
     }
+
+    *opmode = mode;
 
     return LIS3DH_OK;
 }
