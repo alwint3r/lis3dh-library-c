@@ -26,22 +26,7 @@ lis3dh_error_t lis3dh_get_fs(lis3dh_t *sensor, lis3dh_fs_t *fs)
         return error;
     }
 
-    if (ctrl_reg4 & LIS3DH_FS_4g)
-    {
-        *fs = LIS3DH_FS_4g;
-    }
-    else if (ctrl_reg4 & LIS3DH_FS_8g)
-    {
-        *fs = LIS3DH_FS_8g;
-    }
-    else if (ctrl_reg4 & LIS3DH_FS_16g)
-    {
-        *fs = LIS3DH_FS_16g;
-    }
-    else
-    {
-        *fs = LIS3DH_FS_2g;
-    }
+    *fs =  (lis3dh_fs_t)ctrl_reg4 & LIS3DH_FS_MASK;
 
     return LIS3DH_OK;
 }
