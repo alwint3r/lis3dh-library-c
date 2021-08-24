@@ -27,6 +27,8 @@ typedef enum __lis3dh_odr_t
 
 lis3dh_error_t lis3dh_set_odr(lis3dh_t *sensor, lis3dh_odr_t odr);
 lis3dh_error_t lis3dh_power_down(lis3dh_t *sensor);
+lis3dh_error_t lis3dh_get_odr(lis3dh_t *sensor, lis3dh_odr_t *odr);
+lis3dh_error_t lis3dh_get_odr_frequency(lis3dh_t *sensor, uint16_t *frequency);
 
 #ifdef __cplusplus
 }
