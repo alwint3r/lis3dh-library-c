@@ -9,7 +9,11 @@ extern "C"
 #include "lis3dh_sensor.h"
 
 #define LIS3DH_CTRL_REG1_ADDR 0x20
+#define LIS3DH_CTRL_REG2_ADDR 0x21
+#define LIS3DH_CTRL_REG3_ADDR 0x22
 #define LIS3DH_CTRL_REG4_ADDR 0x23
+#define LIS3DH_CTRL_REG5_ADDR 0x24
+#define LIS3DH_CTRL_REG6_ADDR 0x25
 #define LIS3DH_REFERENCE_ADDR 0x26
 #define LIS3DH_STATUS_REG_ADDR 0x27
 #define LIS3DH_OUT_X_L_ADDR 0x28
@@ -18,6 +22,11 @@ extern "C"
 #define LIS3DH_OUT_Y_H_ADDR 0x2B
 #define LIS3DH_OUT_Z_L_ADDR 0x2C
 #define LIS3DH_OUT_Z_H_ADDR 0x2D
+#define LIS3DH_INT1_CFG_ADDR 0x30
+#define LIS3DH_INT1_THS_ADDR 0x32
+#define LIS3DH_INT1_DURATION_ADDR 0x33
+#define LIS3DH_INT2_CFG_ADDR 0x34
+#define LIS3DH_INT2_THS_ADDR 0x36
 
 lis3dh_error_t lis3dh_read_register(lis3dh_t *sensor, uint8_t reg, uint8_t *output);
 lis3dh_error_t lis3dh_write_register(lis3dh_t *sensor, uint8_t reg, uint8_t value);

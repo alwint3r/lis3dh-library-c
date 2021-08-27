@@ -10,6 +10,7 @@ extern "C"
 #include "lis3dh_fullscale.h"
 #include "lis3dh_accelerometer.h"
 #include "lis3dh_status.h"
+#include "lis3dh_interrupt.h"
 
 lis3dh_t* lis3dh_init(lis3dh_i2c_read_t i2c_read, lis3dh_i2c_write_t i2c_write, uint8_t address);
 lis3dh_error_t lis3dh_deinit(lis3dh_t* sensor);
